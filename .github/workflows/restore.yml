@@ -116,6 +116,7 @@ jobs:
     secrets: inherit
     with:
       tags: prerestore_${{ needs.select_snapshots.outputs.TIMESTAMP }}
+      isRestore: true
 
   restore:
     needs: [backup]
@@ -139,6 +140,8 @@ jobs:
         shell: pwsh
 
       - name: Delete all volume content
+        env:
+          VOLUMES: ${{ needs.select_snapshots.outputs.VOLUMES }}
         run: |
           $volumes = "${{ needs.select_snapshots.outputs.VOLUMES }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
 
@@ -150,10 +153,12 @@ jobs:
         shell: pwsh
 
       - name: Restore each volume to temp directory and copy into volume
+        env:
+          VOLUMES: ${{ needs.select_snapshots.outputs.VOLUMES }}
+          SNAPSHOTS: ${{ needs.select_snapshots.outputs.SNAPSHOTS }}
         run: |
-          $repo = "$env:RESTIC_REPOSITORY"
-          $volumes = "${{ needs.select_snapshots.outputs.VOLUMES }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
-          $snapshots = "${{ needs.select_snapshots.outputs.SNAPSHOTS }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+          $volumes = "${ENV:VOLUMES}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+          $snapshots = "${ENV:SNAPSHOTS}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
           if ($volumes.Count -ne $snapshots.Count) {
             Write-Host "Number of volumes and snapshots do not match"
             exit 1
@@ -165,10 +170,10 @@ jobs:
             $tmp = Join-Path $env:TEMP ([guid]::NewGuid().ToString())
             mkdir $tmp | Out-Null
             Write-Host "Restoring $(($env:PROJECT_NAME))_${volume} to $tmp"
-            restic -r "$repo" restore --path "/$volume" $($snapshots[$i]) --target "$tmp" --include "/"
+            restic -r "$env:RESTIC_REPOSITORY" restore --path "/$volume" $($snapshots[$i]) --target "$tmp" --include "/"
             Write-Host "Copying restored data to $(($env:PROJECT_NAME))_${volume}"
             docker run --rm `
-              -v "$tmp:/from" `
+              -v "${tmp}:/from" `
               -v "$(($env:PROJECT_NAME))_${volume}:/to" `
               alpine sh -c "cp -a /from/. /to/"
             $i++
