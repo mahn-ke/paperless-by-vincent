@@ -148,7 +148,7 @@ jobs:
           $volumes | ForEach-Object {
             $volume = $_
             Write-Host "Deleting content of volume: $(($env:PROJECT_NAME))_${volume}"
-            docker run --rm -i --mount source=$(($env:PROJECT_NAME))_${volume},target=/data alpine sh -c "rm -rf /data/*"
+            docker run --rm -i --mount "source=$(($env:PROJECT_NAME))_${volume},target=/data" alpine sh -c "rm -rf /data/*"
           }
         shell: pwsh
 
