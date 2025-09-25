@@ -94,10 +94,10 @@ jobs:
               exit 1
             }
 
-            @snapshots += $snapshot
+            @snapshots += $snapshot.short_id
           }
           Add-Content -Path $env:GITHUB_OUTPUT -Value "SNAPSHOTS=$($snapshots.short_id -join ',')"
-          
+
           Add-Content -Path $env:GITHUB_OUTPUT -Value "TIMESTAMP=$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         shell: pwsh
 
