@@ -102,6 +102,7 @@ jobs:
         shell: pwsh
         
   confirm:
+    needs: [select_snapshots]
     environment: production
     runs-on: ubuntu-latest
     steps:
@@ -110,13 +111,14 @@ jobs:
           echo "Confirmed"
       
   backup:
+    needs: [confirm, select_snapshots]
     uses: mahn-ke/.github/.github/workflows/template-backup.yml@main
     secrets: inherit
     with:
       tags: prerestore_${{ needs.select_snapshots.outputs.TIMESTAMP }}
 
   restore:
-    needs: [select_snapshots, backup]
+    needs: [backup]
     runs-on: hetzner2
     environment: production
     env:
