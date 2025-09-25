@@ -72,21 +72,21 @@ jobs:
             if ($tag) {
               $filtered = $snapshots | Where-Object { $_.tags -contains $tag }
               $snapshot = $filtered | Sort-Object -Property time -Descending | Select-Object -First 1
-              Write-Host "Using snapshot id $($snapshot.short_id) with tag $tag for volume $($env:PROJECT_NAME)_$volume"
+              Write-Host "Using snapshot id $($snapshot.short_id) with tag $tag for volume $(($env:PROJECT_NAME))_${volume}"
             }
             if ($date) {
               $target = [datetime]::Parse($date)
               $snapshot = $snapshots | Sort-Object { [datetime]$_.time } | `
               Where-Object { [datetime]$_.time -le $target } | Select-Object -Last 1
-              Write-Host "Using snapshot id $($snapshot.short_id) closest to $date ($($snapshot.time)) for volume $($env:PROJECT_NAME)_$volume"
+              Write-Host "Using snapshot id $($snapshot.short_id) closest to $date ($($snapshot.time)) for volume $(($env:PROJECT_NAME))_${volume}"
             }
 
             if (-not $snapshot) {
-              Write-Host "No matching snapshot found for volume $($env:PROJECT_NAME)_$volume."
+              Write-Host "No matching snapshot found for volume $(($env:PROJECT_NAME))_${volume}."
               exit 1
             }
 
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "$(($env:PROJECT_NAME)_$volume)_SNAPSHOT_ID=$($snapshot.short_id)"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "${env:PROJECT_NAME}_${volume}_SNAPSHOT_ID=$($snapshot.short_id)"
           }
         shell: pwsh
   restore:
@@ -117,8 +117,8 @@ jobs:
 
           $volumes | ForEach-Object {
             $volume = $_
-            Write-Host "Deleting content of volume: $($env:PROJECT_NAME)_$volume"
-            docker run --rm -i --mount source=$($env:PROJECT_NAME)_$volume,target=/data alpine sh -c "rm -rf /data/*"
+            Write-Host "Deleting content of volume: $(($env:PROJECT_NAME))_${volume}"
+            docker run --rm -i --mount source=$(($env:PROJECT_NAME))_${volume},target=/data alpine sh -c "rm -rf /data/*"
           }
         shell: pwsh
 
@@ -131,12 +131,12 @@ jobs:
             $volume = $_
             $tmp = Join-Path $env:TEMP ([guid]::NewGuid().ToString())
             mkdir $tmp | Out-Null
-            Write-Host "Restoring $($env:PROJECT_NAME)_$volume to $tmp"
+            Write-Host "Restoring $(($env:PROJECT_NAME))_${volume} to $tmp"
             restic -r "$repo\$volume" restore $env:$(($env:PROJECT_NAME)_$volume)_SNAPSHOT_ID --target "$tmp" --include "/"
-            Write-Host "Copying restored data to $($env:PROJECT_NAME)_$volume"
+            Write-Host "Copying restored data to $(($env:PROJECT_NAME))_${volume}"
             docker run --rm `
               -v "$tmp:/from" `
-              -v "$($env:PROJECT_NAME)_$volume:/to" `
+              -v "$(($env:PROJECT_NAME))_${volume}:/to" `
               alpine sh -c "cp -a /from/. /to/"
           }
         shell: pwsh
