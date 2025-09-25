@@ -80,13 +80,13 @@ jobs:
             if ($tag) {
               $filtered = $snapshots | Where-Object { $_.tags -contains $tag }
               $snapshot = $filtered | Sort-Object -Property time -Descending | Select-Object -First 1
-              Write-Host "Using snapshot id $($snapshot.short_id) with tag $tag for volume $(($env:PROJECT_NAME))_${volume} ($($snapshot.time)) (tags: $($snapshot.tags -join ', '))"
+              Write-Host "Using snapshot id $($snapshot.short_id) with tag $tag for volume $(($env:PROJECT_NAME))_${volume} ($($snapshot.time)) (tags: $($snapshot.tags -join ', ')))"
             }
             if ($date) {
               $target = [datetime]::Parse($date)
               $snapshot = $snapshots | Sort-Object { [datetime]$_.time } | `
               Where-Object { [datetime]$_.time -le $target } | Select-Object -Last 1
-              Write-Host "Using snapshot id $($snapshot.short_id) closest to $date for volume $(($env:PROJECT_NAME))_${volume} ($($snapshot.time)) (tags: $($snapshot.tags -join ', ')"
+              Write-Host "Using snapshot id $($snapshot.short_id) closest to $date for volume $(($env:PROJECT_NAME))_${volume} ($($snapshot.time)) (tags: $($snapshot.tags -join ', '))"
             }
 
             if (-not $snapshot) {
