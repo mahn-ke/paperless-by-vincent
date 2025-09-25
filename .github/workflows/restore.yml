@@ -177,8 +177,6 @@ jobs:
           }
         shell: pwsh
 
-      - name: Start docker compose
-        env:
-          COMPOSE_PROJECT_NAME: ${{ env.PROJECT_NAME }}
-        run: docker compose up -d --pull always
-        shell: pwsh
+  deploy:
+    uses: mahn-ke/.github/.github/workflows/template-deploy.yml@main
+    secrets: inherit
