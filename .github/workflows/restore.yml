@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
+  select_snapshots:
     runs-on: hetzner2
     env:
       RESTIC_PASSWORD: ${{ secrets.RESTIC_PASSWORD }}
@@ -91,9 +91,19 @@ jobs:
 
             Add-Content -Path $env:GITHUB_OUTPUT -Value "${env:PROJECT_NAME}_${volume}_SNAPSHOT_ID=$($snapshot.short_id)"
           }
+
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "TIMESTAMP=$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         shell: pwsh
+
+  backup:
+    needs: select_snapshots
+    uses: mahn-ke/.github/.github/workflows/template-backup.yml@main
+    secrets: inherit
+    with:
+      tags: prerestore_${{ needs.select_snapshots.outputs.TIMESTAMP }}
+
   restore:
-    needs: verify
+    needs: [select_snapshots, backup]
     runs-on: hetzner2
     environment: production
     env:
@@ -114,9 +124,11 @@ jobs:
         run: docker compose down
         shell: bash
 
+
+
       - name: Delete all volume content
         run: |
-          $volumes = "${{ needs.verify.outputs.VOLUMES }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+          $volumes = "${{ needs.select_snapshots.outputs.VOLUMES }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
 
           $volumes | ForEach-Object {
             $volume = $_
@@ -128,7 +140,7 @@ jobs:
       - name: Restore each volume to temp directory and copy into volume
         run: |
           $repo = "$env:RESTIC_REPOSITORY"
-          $volumes = "${{ needs.verify.outputs.VOLUMES }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+          $volumes = "${{ needs.select_snapshots.outputs.VOLUMES }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
 
           $volumes | ForEach-Object {
             $volume = $_
