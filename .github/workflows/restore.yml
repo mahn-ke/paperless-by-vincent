@@ -67,8 +67,7 @@ jobs:
           $tag = "${{ github.event.inputs.tag }}"
 
           foreach ($volume in $volumes) {
-            $vol_repo = "$repo\$volume"
-            $snapshots = restic -r $vol_repo snapshots --json | ConvertFrom-Json
+            $snapshots = restic -r $repo snapshots --path $volume --json | ConvertFrom-Json
             if ($tag) {
               $filtered = $snapshots | Where-Object { $_.tags -contains $tag }
               $snapshot = $filtered | Sort-Object -Property time -Descending | Select-Object -First 1
@@ -132,7 +131,7 @@ jobs:
             $tmp = Join-Path $env:TEMP ([guid]::NewGuid().ToString())
             mkdir $tmp | Out-Null
             Write-Host "Restoring $(($env:PROJECT_NAME))_${volume} to $tmp"
-            restic -r "$repo\$volume" restore $env:$(($env:PROJECT_NAME)_$volume)_SNAPSHOT_ID --target "$tmp" --include "/"
+            restic -r "$repo" restore --path $volume $env:$(($env:PROJECT_NAME)_$volume)_SNAPSHOT_ID --target "$tmp" --include "/"
             Write-Host "Copying restored data to $(($env:PROJECT_NAME))_${volume}"
             docker run --rm `
               -v "$tmp:/from" `
