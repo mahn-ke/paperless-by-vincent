@@ -100,10 +100,16 @@ jobs:
 
           Add-Content -Path $env:GITHUB_OUTPUT -Value "TIMESTAMP=$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         shell: pwsh
-
-  backup:
-    needs: select_snapshots
+        
+  confirm:
     environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm restore
+        run: |
+          echo "Confirmed"
+      
+  backup:
     uses: mahn-ke/.github/.github/workflows/template-backup.yml@main
     secrets: inherit
     with:
