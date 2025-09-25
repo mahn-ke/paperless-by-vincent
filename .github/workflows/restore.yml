@@ -119,7 +119,7 @@ jobs:
       # isRestore: true
 
   restore:
-    needs: [backup]
+    needs: [backup, select_snapshots]
     runs-on: hetzner2
     env:
       RESTIC_PASSWORD: ${{ secrets.RESTIC_PASSWORD }}
@@ -140,8 +140,6 @@ jobs:
         shell: pwsh
 
       - name: Delete all volume content
-        env:
-          VOLUMES: ${{ needs.select_snapshots.outputs.VOLUMES }}
         run: |
           $volumes = "${{ needs.select_snapshots.outputs.VOLUMES }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
 
@@ -153,12 +151,9 @@ jobs:
         shell: pwsh
 
       - name: Restore each volume to temp directory and copy into volume
-        env:
-          VOLUMES: ${{ needs.select_snapshots.outputs.VOLUMES }}
-          SNAPSHOTS: ${{ needs.select_snapshots.outputs.SNAPSHOTS }}
         run: |
-          $volumes = "${ENV:VOLUMES}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
-          $snapshots = "${ENV:SNAPSHOTS}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+          $volumes = "${{ needs.select_snapshots.outputs.VOLUMES }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+          $snapshots = "${{ needs.select_snapshots.outputs.SNAPSHOTS }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
           if ($volumes.Count -ne $snapshots.Count) {
             Write-Host "Number of volumes and snapshots do not match"
             exit 1
