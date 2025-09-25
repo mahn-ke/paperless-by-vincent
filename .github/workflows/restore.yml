@@ -116,7 +116,7 @@ jobs:
     secrets: inherit
     with:
       tags: prerestore_${{ needs.select_snapshots.outputs.TIMESTAMP }}
-      isRestore: true
+      # isRestore: true
 
   restore:
     needs: [backup]
@@ -180,6 +180,6 @@ jobs:
           }
         shell: pwsh
 
-      # - name: Start docker compose
-      #   run: docker compose up -d --pull always
-      #   shell: pwsh
+      - name: Start docker compose
+        run: docker compose up -d --pull always
+        shell: pwsh
