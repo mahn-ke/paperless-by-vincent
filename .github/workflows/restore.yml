@@ -96,7 +96,7 @@ jobs:
 
             $snapshots += $snapshot.short_id
           }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "SNAPSHOTS=$($snapshots.short_id -join ',')"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "SNAPSHOTS=$($snapshots -join ',')"
 
           Add-Content -Path $env:GITHUB_OUTPUT -Value "TIMESTAMP=$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         shell: pwsh
@@ -157,7 +157,7 @@ jobs:
           $volumes = "${{ needs.select_snapshots.outputs.VOLUMES }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
           $snapshots = "${{ needs.select_snapshots.outputs.SNAPSHOTS }}".Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
           if ($volumes.Count -ne $snapshots.Count) {
-            Write-Host "Number of volumes and snapshots do not match"
+            Write-Host "Number of volumes and snapshots do not match: $($volumes.Count) volumes, $($snapshots.Count) snapshots"
             exit 1
           }
 
