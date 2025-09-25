@@ -94,7 +94,7 @@ jobs:
               exit 1
             }
 
-            @snapshots += $snapshot.short_id
+            $snapshots += $snapshot.short_id
           }
           Add-Content -Path $env:GITHUB_OUTPUT -Value "SNAPSHOTS=$($snapshots.short_id -join ',')"
 
