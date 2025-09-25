@@ -178,5 +178,6 @@ jobs:
         shell: pwsh
 
   deploy:
+    needs: restore
     uses: mahn-ke/.github/.github/workflows/template-deploy.yml@main
     secrets: inherit
