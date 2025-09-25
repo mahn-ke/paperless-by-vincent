@@ -74,7 +74,7 @@ jobs:
           $date = "${{ github.event.inputs.date }}"
           $tag = "${{ github.event.inputs.tag }}"
 
-          $snapshots = @()
+          $snapshot_ids = @()
           foreach ($volume in $volumes) {
             $snapshots = restic -r $repo snapshots --path "/$volume" --json | ConvertFrom-Json
             if ($tag) {
@@ -94,9 +94,9 @@ jobs:
               exit 1
             }
 
-            $snapshots += $snapshot.short_id
+            $snapshot_ids += $snapshot.short_id
           }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "SNAPSHOTS=$($snapshots -join ',')"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "SNAPSHOTS=$($snapshot_ids -join ',')"
 
           Add-Content -Path $env:GITHUB_OUTPUT -Value "TIMESTAMP=$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         shell: pwsh
