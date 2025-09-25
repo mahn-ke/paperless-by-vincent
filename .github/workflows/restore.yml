@@ -170,7 +170,7 @@ jobs:
             restic -r "$env:RESTIC_REPOSITORY" restore --path "/$volume" $($snapshots[$i]) --target "$tmp" --include "/"
             Write-Host "Copying restored data to $(($env:PROJECT_NAME))_${volume}"
             docker run --rm `
-              -v "${tmp}:/from" `
+              -v "${tmp}:/from/${volume}" `
               -v "$(($env:PROJECT_NAME))_${volume}:/to" `
               alpine sh -c "cp -a /from/. /to/"
             $i++
