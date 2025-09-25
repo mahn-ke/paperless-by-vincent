@@ -172,7 +172,7 @@ jobs:
             docker run --rm `
               -v "${tmp}:/from" `
               -v "$(($env:PROJECT_NAME))_${volume}:/to" `
-              alpine sh -c "cp -a /from//${volume}/. /to/"
+              alpine sh -c "cp -a /from/${volume}/. /to/"
             $i++
           }
         shell: pwsh
