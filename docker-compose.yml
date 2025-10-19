@@ -8,7 +8,7 @@ services:
       - redisdata:/data
 
   webserver:
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.18
     restart: unless-stopped
     depends_on:
       - broker
@@ -35,7 +35,7 @@ services:
       PAPERLESS_REDIS: redis://broker:6379
       
   webdav-sync:
-    image: rclone/rclone:latest
+    image: rclone/rclone:1.71
     restart: unless-stopped
     volumes:
       - consume:/data/consume
