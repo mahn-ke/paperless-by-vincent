@@ -33,6 +33,30 @@ services:
       PAPERLESS_SOCIALACCOUNT_PROVIDERS: >
         {"openid_connect": {"APPS": [{"provider_id": "keycloak","name": "${OAUTH_NAME}","client_id": "${OAUTH_CLIENT_ID}","secret": "${OAUTH_CLIENT_SECRET}","settings": { "server_url": "${OAUTH_URL}/.well-known/openid-configuration"}}]}}
       PAPERLESS_REDIS: redis://broker:6379
+      
+  webdav-sync:
+    image: rclone/rclone:latest
+    restart: unless-stopped
+    volumes:
+      - consume:/data/consume
+      - rclonedata:/config/rclone
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        cat > /config/rclone/rclone.conf <<EOF
+        [remote]
+        type = webdav
+        url = ${NEXTCLOUD_HOST}/remote.php/dav/files/${NEXTCLOUD_USERNAME}
+        vendor = nextcloud
+        user = ${NEXTCLOUD_USERNAME}
+        pass = $(rclone obscure "${NEXTCLOUD_PASSWORD}")
+        EOF
+
+        while true; do
+          rclone sync remote:Paperless /data/consume --delete-during --transfers 4 --checkers 8 --low-level-retries 10 --timeout 1m
+          sleep 10
+        done
 
 volumes:
   data:
@@ -40,3 +64,4 @@ volumes:
   export:
   consume:
   redisdata:
+  rclonedata:
