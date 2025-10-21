@@ -33,6 +33,7 @@ services:
       PAPERLESS_SOCIALACCOUNT_PROVIDERS: >
         {"openid_connect": {"APPS": [{"provider_id": "keycloak","name": "${OAUTH_NAME}","client_id": "${OAUTH_CLIENT_ID}","secret": "${OAUTH_CLIENT_SECRET}","settings": { "server_url": "${OAUTH_URL}/.well-known/openid-configuration"}}]}}
       PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_CONSUMPTION_DIR=: ../consume/rsync
       
   webdav-sync:
     image: rclone/rclone:1.71
