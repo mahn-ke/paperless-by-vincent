@@ -55,7 +55,7 @@ services:
         EOF
 
         while true; do
-          rclone -vv bisync remote:Paperless /data/consume --delete-during --transfers 4 --checkers 8 --low-level-retries 10 --timeout 1m --remove-empty-dirs --resilient --recover --max-lock 2m --conflict-resolve newer
+          rclone -vv bisync remote:Paperless /data/consume --delete-during --transfers 4 --checkers 8 --low-level-retries 10 --timeout 1m --create-empty-src-dirs --resilient --recover --max-lock 2m --conflict-resolve newer
           sleep 10
         done
 
