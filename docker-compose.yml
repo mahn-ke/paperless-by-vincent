@@ -54,7 +54,7 @@ services:
         EOF
 
         while true; do
-          rclone sync remote:Paperless /data/consume --delete-during --transfers 4 --checkers 8 --low-level-retries 10 --timeout 1m
+          rclone -vv sync remote:Paperless /data/consume --delete-during --transfers 4 --checkers 8 --low-level-retries 10 --timeout 1m
           sleep 10
         done
 
