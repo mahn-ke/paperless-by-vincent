@@ -4,7 +4,7 @@ resource "random_password" "ddns_password" {
 }
 
 locals {
-  subdomain_label = replace(replace(basename(dirname(path.cwd)), "-by-vincent", ""), "-", ".")
+  subdomain_label = replace(basename(dirname(path.cwd)), "-", ".")
 }
 
 resource "allinkl_dns" "subdomain" {
