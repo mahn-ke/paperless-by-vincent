@@ -40,9 +40,4 @@ volumes:
   media:
   export:
   consume:
-    driver: fentas/davfs
-    driver_opts:
-      url: "https://${NEXTCLOUD_WEBDAV_USERNAME}:${NEXTCLOUD_WEBDAV_PASSWORD}@${NEXTCLOUD_WEBDAV_HOST}/remote.php/dav/files/${NEXTCLOUD_WEBDAV_USERNAME}/Paperless"
-      uid: "1000"
-      gid: "1000"
   redisdata:
